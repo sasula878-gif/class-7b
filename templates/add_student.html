@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7Б — Добавить ученика</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --yellow: #FFD93D; --orange: #FF6B35; --pink: #FF4D6D;
+            --dark: #1a1a2e; --card: rgba(255,255,255,0.06); --border: rgba(255,255,255,0.1);
+            --text: rgba(255,255,255,0.9); --muted: rgba(255,255,255,0.45);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Nunito', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .form-card {
+            background: rgba(255,255,255,0.05); border: 2px solid var(--border);
+            border-radius: 24px; padding: 40px; width: 100%; max-width: 480px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .form-title { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+        .form-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .form-input, .form-select {
+            width: 100%; background: rgba(255,255,255,0.07); border: 2px solid var(--border);
+            border-radius: 12px; padding: 12px 16px; color: var(--text);
+            font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 600;
+            transition: all 0.2s; outline: none;
+        }
+        .form-input::placeholder { color: var(--muted); }
+        .form-input:focus, .form-select:focus { border-color: var(--yellow); background: rgba(255,217,61,0.06); }
+        .form-select option { background: #1a1a2e; }
+        .emoji-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .emoji-btn {
+            width: 40px; height: 40px; border-radius: 10px; border: 2px solid var(--border);
+            background: var(--card); font-size: 20px; cursor: pointer; transition: all 0.15s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .emoji-btn:hover, .emoji-btn.selected { border-color: var(--yellow); background: rgba(255,217,61,0.12); transform: scale(1.1); }
+        input[name="emoji"] { display: none; }
+        .form-actions { display: flex; gap: 12px; margin-top: 28px; }
+        .btn-submit {
+            flex: 1; background: linear-gradient(135deg, var(--yellow), var(--orange));
+            color: var(--dark); border: none; border-radius: 14px; padding: 14px;
+            font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 900;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,53,0.4); }
+        .btn-cancel { display: flex; align-items: center; justify-content: center; padding: 14px 20px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); color: var(--text); text-decoration: none; font-weight: 700; font-size: 15px; transition: all 0.2s; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <div class="form-title">👤 Новый ученик</div>
+        <div class="form-sub">Добавь ученика в список класса 7Б</div>
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label">Полное имя</label>
+                <input class="form-input" type="text" name="name" placeholder="Например: Иванов Иван" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Роль / должность</label>
+                <input class="form-input" type="text" name="role" placeholder="Например: Физорг, Редактор (необязательно)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Аватар-эмодзи</label>
+                <input type="hidden" name="emoji" id="emojiInput" value="🧑">
+                <div class="emoji-picker">
+                    {% for e in ['🧑','👦','👧','🧒','👨','👩','🧑‍💻','🎓','⭐','🦊','🐱','🐶','🦁','🐼','🦋','🌟'] %}
+                    <button type="button" class="emoji-btn {% if e == '🧑' %}selected{% endif %}" onclick="selectEmoji(this, '{{ e }}')">{{ e }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-submit" type="submit">Добавить ✅</button>
+                <a href="/students" class="btn-cancel">Отмена</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        function selectEmoji(btn, emoji) {
+            document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('emojiInput').value = emoji;
+        }
+    </script>
+</body>
+</html>

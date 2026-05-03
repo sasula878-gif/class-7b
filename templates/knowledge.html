@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7Б — ГДЗ и База знаний</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --yellow: #FFD93D; --orange: #FF6B35; --pink: #FF4D6D;
+            --purple: #7B2FBE; --blue: #4CC9F0; --green: #06D6A0;
+            --dark: #1a1a2e; --card: rgba(255,255,255,0.06); --border: rgba(255,255,255,0.1);
+            --text: rgba(255,255,255,0.9); --muted: rgba(255,255,255,0.45);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Nunito', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; }
+        .topbar { background: rgba(255,255,255,0.04); border-bottom: 2px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); }
+        .topbar-brand { display: flex; align-items: center; gap: 12px; }
+        .badge-7b { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--dark); font-weight: 900; font-size: 20px; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(255,107,53,0.4); }
+        .topbar-brand h1 { font-size: 20px; font-weight: 900; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; border: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--dark); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,107,53,0.4); }
+        .btn-ghost { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+        .layout { display: flex; min-height: calc(100vh - 64px); }
+        .sidebar { width: 220px; flex-shrink: 0; background: rgba(255,255,255,0.03); border-right: 2px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 6px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 14px; text-decoration: none; color: var(--muted); font-weight: 700; font-size: 15px; transition: all 0.2s; }
+        .nav-item:hover { background: var(--card); color: var(--text); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(255,217,61,0.15), rgba(255,107,53,0.15)); color: var(--yellow); border: 1px solid rgba(255,217,61,0.2); }
+        .nav-icon { font-size: 20px; }
+        .sidebar-sep { height: 1px; background: var(--border); margin: 10px 0; }
+        .content { flex: 1; padding: 28px; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .page-title { font-size: 28px; font-weight: 900; }
+
+        /* FILTER TABS */
+        .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+        .filter-tab {
+            padding: 8px 18px; border-radius: 20px; border: 1.5px solid var(--border);
+            background: var(--card); color: var(--muted); font-family: 'Nunito', sans-serif;
+            font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        }
+        .filter-tab:hover { border-color: var(--yellow); color: var(--text); }
+        .filter-tab.active { background: rgba(255,217,61,0.15); border-color: var(--yellow); color: var(--yellow); }
+
+        /* CARDS GRID */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+        .material-card {
+            background: var(--card); border: 1.5px solid var(--border);
+            border-radius: 18px; padding: 20px;
+            transition: all 0.25s; display: flex; flex-direction: column; gap: 12px;
+        }
+        .material-card:hover { transform: translateY(-4px); border-color: rgba(76,201,240,0.4); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+        .material-cat {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .material-title { font-size: 16px; font-weight: 800; line-height: 1.3; }
+        .material-link {
+            margin-top: auto;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(76,201,240,0.12); color: var(--blue);
+            border: 1px solid rgba(76,201,240,0.25);
+            border-radius: 10px; padding: 8px 14px;
+            text-decoration: none; font-size: 14px; font-weight: 700;
+            transition: all 0.2s; align-self: flex-start;
+        }
+        .material-link:hover { background: rgba(76,201,240,0.22); transform: translateX(3px); }
+
+        /* CATEGORY COLOURS */
+        .cat-gdz   { background: rgba(255,77,109,0.15); color: var(--pink); }
+        .cat-math  { background: rgba(123,47,190,0.15); color: #c084fc; }
+        .cat-lang  { background: rgba(6,214,160,0.15); color: var(--green); }
+        .cat-sci   { background: rgba(76,201,240,0.15); color: var(--blue); }
+        .cat-other { background: rgba(255,217,61,0.15); color: var(--yellow); }
+
+        .empty { text-align: center; padding: 80px 40px; color: var(--muted); }
+        .empty span { font-size: 60px; display: block; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-brand">
+            <div class="badge-7b">7Б</div>
+            <h1>Класс 7Б</h1>
+        </div>
+        <div style="display:flex;gap:10px">
+            {% if user == 'admin' %}
+                <a href="/add_material" class="btn btn-primary">+ Добавить материал</a>
+            {% endif %}
+            <a href="/" class="btn btn-ghost">← Главная</a>
+        </div>
+    </div>
+    <div class="layout">
+        <nav class="sidebar">
+            <a href="/" class="nav-item"><span class="nav-icon">🏠</span> Главная</a>
+            <a href="/students" class="nav-item"><span class="nav-icon">👥</span> Ученики</a>
+            <a href="/gallery" class="nav-item"><span class="nav-icon">🖼️</span> Галерея</a>
+            <a href="/knowledge" class="nav-item active"><span class="nav-icon">📚</span> ГДЗ и уроки</a>
+            <a href="/birthdays" class="nav-item"><span class="nav-icon">🎂</span> Дни рождения</a>
+            <div class="sidebar-sep"></div>
+            {% if user == 'admin' %}
+                <a href="/add_material" class="nav-item"><span class="nav-icon">➕</span> Доб. материал</a>
+            {% endif %}
+        </nav>
+        <main class="content">
+            <div class="page-header">
+                <div class="page-title">📚 ГДЗ и База знаний</div>
+            </div>
+
+            {% if materials %}
+            <!-- Фильтр по категориям -->
+            <div class="filter-tabs" id="filterTabs">
+                <button class="filter-tab active" data-cat="all" onclick="filterCards('all', this)">Все</button>
+                {% set seen = [] %}
+                {% for m in materials %}
+                    {% if m['category'] not in seen %}
+                        {% if seen.append(m['category']) %}{% endif %}
+                        <button class="filter-tab" data-cat="{{ m['category'] }}" onclick="filterCards('{{ m['category'] }}', this)">{{ m['category'] }}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="cards-grid" id="cardsGrid">
+                {% for m in materials %}
+                {% set cat_lower = m['category']|lower %}
+                <div class="material-card" data-cat="{{ m['category'] }}">
+                    <div>
+                        <span class="material-cat
+                            {% if 'гдз' in cat_lower %}cat-gdz
+                            {% elif 'мат' in cat_lower %}cat-math
+                            {% elif 'рус' in cat_lower or 'англ' in cat_lower %}cat-lang
+                            {% elif 'физ' in cat_lower or 'хим' in cat_lower or 'био' in cat_lower %}cat-sci
+                            {% else %}cat-other{% endif %}">
+                            {% if 'гдз' in cat_lower %}📖
+                            {% elif 'мат' in cat_lower %}🔢
+                            {% elif 'рус' in cat_lower %}✍️
+                            {% elif 'англ' in cat_lower %}🇬🇧
+                            {% elif 'физ' in cat_lower %}⚗️
+                            {% else %}📌{% endif %}
+                            {{ m['category'] }}
+                        </span>
+                    </div>
+                    <div class="material-title">{{ m['title'] }}</div>
+                    <a href="{{ m['url'] }}" class="material-link" target="_blank" rel="noopener">Открыть →</a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty">
+                <span>📚</span>
+                <p>Здесь пока пусто — добавь первый материал или ГДЗ!</p>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+    <script>
+        function filterCards(cat, btn) {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.material-card').forEach(card => {
+                if (cat === 'all' || card.dataset.cat === cat) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
