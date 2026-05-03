@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7Б — Вход</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --y:#FFD93D; --o:#FF6B35; --p:#FF4D6D; --dark:#1a1a2e; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Nunito',sans-serif; background:var(--dark); min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .bg { position:fixed; inset:0; pointer-events:none; }
+        .blob { position:absolute; border-radius:50%; opacity:.12; animation:fl 7s ease-in-out infinite; }
+        .blob:nth-child(1){width:350px;height:350px;background:var(--p);top:-100px;left:-80px;animation-delay:0s}
+        .blob:nth-child(2){width:250px;height:250px;background:var(--y);bottom:-80px;right:-60px;animation-delay:2s}
+        .blob:nth-child(3){width:180px;height:180px;background:#4CC9F0;top:40%;right:8%;animation-delay:4s}
+        @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+        .card { position:relative; z-index:1; background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.1); border-radius:28px; padding:48px 44px; width:400px; box-shadow:0 30px 80px rgba(0,0,0,.5); animation:up .6s cubic-bezier(.34,1.56,.64,1); }
+        @keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+        .logo { text-align:center; margin-bottom:32px; }
+        .badge { display:inline-flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--y),var(--o)); color:var(--dark); font-size:32px; font-weight:900; width:80px; height:80px; border-radius:22px; margin-bottom:14px; box-shadow:0 8px 30px rgba(255,107,53,.4); animation:bop 2s ease-in-out infinite; }
+        @keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+        .logo h1 { color:#fff; font-size:26px; font-weight:900; }
+        .logo p { color:rgba(255,255,255,.45); font-size:14px; margin-top:4px; }
+        .error { background:rgba(255,77,109,.15); border:1px solid rgba(255,77,109,.35); border-radius:12px; padding:10px 14px; color:#FF4D6D; font-size:14px; font-weight:700; margin-bottom:16px; text-align:center; }
+        .field { margin-bottom:14px; }
+        .field input { width:100%; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.1); border-radius:14px; padding:14px 18px; color:#fff; font-family:'Nunito',sans-serif; font-size:16px; font-weight:600; outline:none; transition:.3s; }
+        .field input::placeholder { color:rgba(255,255,255,.35); }
+        .field input:focus { border-color:var(--y); background:rgba(255,217,61,.08); }
+        .btn { width:100%; background:linear-gradient(135deg,var(--y),var(--o)); color:var(--dark); border:none; border-radius:14px; padding:15px; font-family:'Nunito',sans-serif; font-size:17px; font-weight:900; cursor:pointer; margin-top:6px; transition:.3s; box-shadow:0 6px 20px rgba(255,107,53,.35); }
+        .btn:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,107,53,.5); }
+        .hint { text-align:center; color:rgba(255,255,255,.3); font-size:13px; margin-top:18px; }
+        .emojis { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+        .ej { position:absolute; animation:ef linear infinite; opacity:.35; }
+        @keyframes ef{from{transform:translateY(110vh) rotate(0deg)}to{transform:translateY(-10vh) rotate(360deg)}}
+    </style>
+</head>
+<body>
+<div class="bg"><div class="blob"></div><div class="blob"></div><div class="blob"></div></div>
+<div class="emojis" id="ej"></div>
+<div class="card">
+    <div class="logo">
+        <div class="badge">7Б</div>
+        <h1>Наш Класс!</h1>
+        <p>Добро пожаловать 🎉</p>
+    </div>
+    {% if error %}<div class="error">⚠️ {{ error }}</div>{% endif %}
+    <form method="POST">
+        <div class="field"><input type="text" name="username" placeholder="👤 Логин" required autocomplete="username"></div>
+        <div class="field"><input type="password" name="password" placeholder="🔑 Пароль" required autocomplete="current-password"></div>
+        <button type="submit" class="btn">Войти 🚀</button>
+    </form>
+    <p class="hint">Забыл пароль? Спроси классного руководителя 😄</p>
+</div>
+<script>
+const E=['📚','✏️','🎒','🏆','⭐','🎯','📝','🔬','🎨','📐'];
+const c=document.getElementById('ej');
+function sp(){const el=document.createElement('div');el.className='ej';el.textContent=E[Math.floor(Math.random()*E.length)];el.style.left=Math.random()*100+'vw';el.style.animationDuration=(8+Math.random()*8)+'s';el.style.fontSize=(14+Math.random()*18)+'px';c.appendChild(el);setTimeout(()=>el.remove(),18000);}
+for(let i=0;i<10;i++)sp();setInterval(sp,1500);
+</script>
+</body>
+</html>
