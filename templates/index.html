@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>7Б — Главная</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--y:#FFD93D;--o:#FF6B35;--p:#FF4D6D;--b:#4CC9F0;--g:#06D6A0;--dark:#1a1a2e;--card:rgba(255,255,255,.06);--brd:rgba(255,255,255,.1);--txt:rgba(255,255,255,.9);--mut:rgba(255,255,255,.45)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--txt);min-height:100vh}
+        a{text-decoration:none;color:inherit}
+        /* TOPBAR */
+        .top{background:rgba(255,255,255,.04);border-bottom:2px solid var(--brd);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
+        .brand{display:flex;align-items:center;gap:10px}
+        .badge{background:linear-gradient(135deg,var(--y),var(--o));color:var(--dark);font-weight:900;font-size:18px;width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(255,107,53,.4)}
+        .brand h1{font-size:18px;font-weight:900}
+        .top-right{display:flex;align-items:center;gap:10px}
+        .chip{background:var(--card);border:1px solid var(--brd);border-radius:20px;padding:5px 13px;font-size:13px;font-weight:700}
+        .clock{font-size:15px;font-weight:800;color:var(--y);font-variant-numeric:tabular-nums}
+        /* BTN */
+        .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border-radius:11px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:.2s;text-decoration:none}
+        .btn-y{background:linear-gradient(135deg,var(--y),var(--o));color:var(--dark)}
+        .btn-y:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(255,107,53,.4)}
+        .btn-r{background:rgba(255,77,109,.15);border:1px solid rgba(255,77,109,.3);color:var(--p)}
+        .btn-g{background:var(--card);border:1px solid var(--brd);color:var(--txt)}
+        /* LAYOUT */
+        .layout{display:flex;min-height:calc(100vh - 62px)}
+        /* SIDEBAR */
+        .side{width:210px;flex-shrink:0;background:rgba(255,255,255,.03);border-right:2px solid var(--brd);padding:20px 14px;display:flex;flex-direction:column;gap:5px}
+        .nav{display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:13px;color:var(--mut);font-weight:700;font-size:14px;transition:.2s;text-decoration:none}
+        .nav:hover{background:var(--card);color:var(--txt)}
+        .nav.on{background:linear-gradient(135deg,rgba(255,217,61,.15),rgba(255,107,53,.15));color:var(--y);border:1px solid rgba(255,217,61,.2)}
+        .ni{font-size:18px}
+        .sep{height:1px;background:var(--brd);margin:8px 0}
+        /* CONTENT */
+        .main{flex:1;padding:24px;overflow-y:auto}
+        .sec{font-size:19px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+        /* SCHEDULE */
+        .stbl{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--brd);margin-bottom:28px}
+        .stbl th{background:rgba(255,255,255,.05);padding:10px 14px;text-align:left;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+        .stbl td{padding:11px 14px;border-top:1px solid var(--brd);font-size:14px;font-weight:600}
+        .stbl tr.now td{background:rgba(6,214,160,.1);color:var(--g)}
+        .stbl tr.now td:first-child{border-left:4px solid var(--g)}
+        .tc{background:rgba(76,201,240,.12);color:var(--b);border-radius:7px;padding:2px 9px;font-size:12px;font-weight:700;display:inline-block}
+        .nb{background:var(--g);color:var(--dark);border-radius:5px;padding:1px 7px;font-size:11px;font-weight:900;margin-left:6px;display:none}
+        .now .nb{display:inline}
+        /* 2 COL */
+        .two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        @media(max-width:860px){.two{grid-template-columns:1fr}}
+        /* POSTS */
+        .post{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:.2s}
+        .post:hover{border-color:rgba(255,217,61,.3);transform:translateX(3px)}
+        .pt{font-size:16px;font-weight:800;color:var(--y);margin-bottom:5px}
+        .pc{font-size:13px;color:var(--mut);line-height:1.6}
+        .pd{font-size:11px;color:rgba(255,255,255,.2);margin-top:6px}
+        /* BDAYS */
+        .blist{display:flex;flex-direction:column;gap:9px}
+        .bi{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:12px 15px;transition:.2s}
+        .bi:hover{border-color:rgba(255,77,109,.3)}
+        .bi.today{background:rgba(255,77,109,.1);border-color:rgba(255,77,109,.35)}
+        .bav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(255,255,255,.07);flex-shrink:0}
+        .bn{font-weight:800;font-size:14px}
+        .bd{font-size:12px;color:var(--mut)}
+        .bbadge{margin-left:auto;background:var(--p);color:#fff;border-radius:7px;padding:2px 9px;font-size:11px;font-weight:900}
+        .bdays{margin-left:auto;font-size:12px;color:var(--mut);font-weight:700}
+        /* EMPTY */
+        .empty{text-align:center;padding:36px;color:var(--mut)}
+        .empty span{font-size:36px;display:block;margin-bottom:6px}
+    </style>
+</head>
+<body>
+<div class="top">
+    <div class="brand">
+        <div class="badge">7Б</div>
+        <h1>Класс 7Б</h1>
+    </div>
+    <div class="top-right">
+        <div class="clock" id="clk">--:--</div>
+        <div class="chip">{{ role_label }} {{ user }}</div>
+        {% if can('post') %}<a href="/create" class="btn btn-y">+ Объявление</a>{% endif %}
+        <a href="/logout" class="btn btn-r">Выйти</a>
+    </div>
+</div>
+<div class="layout">
+    <nav class="side">
+        <a href="/" class="nav on"><span class="ni">🏠</span> Главная</a>
+        <a href="/students" class="nav"><span class="ni">👥</span> Ученики</a>
+        <a href="/gallery" class="nav"><span class="ni">🖼️</span> Галерея</a>
+        <a href="/knowledge" class="nav"><span class="ni">📚</span> ГДЗ и уроки</a>
+        <a href="/birthdays" class="nav"><span class="ni">🎂</span> Дни рождения</a>
+        {% if can('manage_users') %}
+        <div class="sep"></div>
+        <a href="/users" class="nav"><span class="ni">🔑</span> Пользователи</a>
+        {% endif %}
+        {% if can('post') %}
+        <div class="sep"></div>
+        <a href="/create" class="nav"><span class="ni">📢</span> Объявление</a>
+        <a href="/add_photo" class="nav"><span class="ni">📸</span> Доб. фото</a>
+        <a href="/add_material" class="nav"><span class="ni">➕</span> Доб. материал</a>
+        <a href="/add_student" class="nav"><span class="ni">👤</span> Доб. ученика</a>
+        <a href="/add_birthday" class="nav"><span class="ni">🎉</span> Доб. ДР</a>
+        {% endif %}
+    </nav>
+    <main class="main">
+        <div class="sec">📅 Расписание на сегодня</div>
+        <table class="stbl" id="st">
+            <thead><tr><th>№</th><th>Время</th><th>Предмет</th><th>Учитель</th></tr></thead>
+            <tbody>
+                <tr data-s="08:00" data-e="08:45"><td>1</td><td><span class="tc">08:00–08:45</span></td><td>Математика <span class="nb">сейчас</span></td><td>—</td></tr>
+                <tr data-s="08:55" data-e="09:40"><td>2</td><td><span class="tc">08:55–09:40</span></td><td>Русский язык <span class="nb">сейчас</span></td><td>—</td></tr>
+                <tr data-s="09:55" data-e="10:40"><td>3</td><td><span class="tc">09:55–10:40</span></td><td>История <span class="nb">сейчас</span></td><td>—</td></tr>
+                <tr data-s="10:50" data-e="11:35"><td>4</td><td><span class="tc">10:50–11:35</span></td><td>Биология <span class="nb">сейчас</span></td><td>—</td></tr>
+                <tr data-s="11:50" data-e="12:35"><td>5</td><td><span class="tc">11:50–12:35</span></td><td>Физкультура <span class="nb">сейчас</span></td><td>—</td></tr>
+                <tr data-s="12:45" data-e="13:30"><td>6</td><td><span class="tc">12:45–13:30</span></td><td>Английский язык <span class="nb">сейчас</span></td><td>—</td></tr>
+                <tr data-s="13:40" data-e="14:25"><td>7</td><td><span class="tc">13:40–14:25</span></td><td>Информатика <span class="nb">сейчас</span></td><td>—</td></tr>
+            </tbody>
+        </table>
+        <div class="two">
+            <div>
+                <div class="sec">📢 Объявления</div>
+                {% for p in posts %}
+                <div class="post">
+                    <div class="pt">{{ p['title'] }}</div>
+                    <div class="pc">{{ p['content'] }}</div>
+                    <div class="pd">{{ p['created'] }}</div>
+                </div>
+                {% else %}
+                <div class="empty"><span>📭</span>Объявлений пока нет</div>
+                {% endfor %}
+            </div>
+            <div>
+                <div class="sec">🎂 Ближайшие ДР</div>
+                <div class="blist">
+                {% for b in birthdays %}
+                <div class="bi {% if b.is_today %}today{% endif %}">
+                    <div class="bav">{{ b.emoji }}</div>
+                    <div><div class="bn">{{ b.name }}</div><div class="bd">{{ b.date_str }}</div></div>
+                    {% if b.is_today %}<div class="bbadge">🎉 Сегодня!</div>
+                    {% else %}<div class="bdays">через {{ b.days_left }} дн.</div>{% endif %}
+                </div>
+                {% else %}
+                <div class="empty"><span>🎂</span>Нет данных</div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+function tick(){const n=new Date();document.getElementById('clk').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
+tick();setInterval(tick,1000);
+function hl(){const n=new Date();const c=n.getHours()*60+n.getMinutes();document.querySelectorAll('#st tbody tr').forEach(r=>{const[sh,sm]=r.dataset.s.split(':').map(Number);const[eh,em]=r.dataset.e.split(':').map(Number);r.classList.toggle('now',c>=sh*60+sm&&c<=eh*60+em);});}
+hl();setInterval(hl,30000);
+</script>
+</body>
+</html>
