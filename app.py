@@ -58,19 +58,26 @@ def init_db():
     conn.execute('''CREATE TABLE IF NOT EXISTS birthdays (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL, birthdate TEXT NOT NULL, emoji TEXT DEFAULT "🎂")''')
+    # Таблица users — создаём если нет
     conn.execute('''CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         role TEXT NOT NULL DEFAULT "student",
         display_name TEXT)''')
-    # Создаём дефолтных пользователей если таблица пустая
-    existing = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-    if existing == 0:
+
+    # Гарантируем что админ всегда существует
+    admin = conn.execute("SELECT id FROM users WHERE username='admin'").fetchone()
+    if not admin:
         conn.execute("INSERT INTO users (username, password, role, display_name) VALUES (?,?,?,?)",
                      ('admin', 'admin123', 'admin', 'Администратор'))
+
+    # Гарантируем что учитель всегда существует
+    teacher = conn.execute("SELECT id FROM users WHERE username='teacher'").fetchone()
+    if not teacher:
         conn.execute("INSERT INTO users (username, password, role, display_name) VALUES (?,?,?,?)",
                      ('teacher', 'teacher123', 'teacher', 'Классный руководитель'))
+
     conn.commit()
     conn.close()
 
