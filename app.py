@@ -16,6 +16,9 @@ MONTHS_RU = {
 }
 MONTH_SHORT = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек']
 
+DAYS_RU = {1:'Понедельник', 2:'Вторник', 3:'Среда', 4:'Четверг', 5:'Пятница'}
+DAYS_SHORT = {1:'Пн', 2:'Вт', 3:'Ср', 4:'Чт', 5:'Пт'}
+
 ROLE_LABELS = {
     'admin':   '👑 Админ',
     'teacher': '👩‍🏫 Кл. рук.',
@@ -24,8 +27,8 @@ ROLE_LABELS = {
 }
 
 ROLE_PERMS = {
-    'admin':   ['view','post','photo','material','student','birthday','manage_users'],
-    'teacher': ['view','post','photo','material','student','birthday'],
+    'admin':   ['view','post','photo','material','student','birthday','manage_users','schedule'],
+    'teacher': ['view','post','photo','material','student','birthday','schedule'],
     'parent':  ['view'],
     'student': ['view'],
 }
@@ -70,6 +73,33 @@ def init_db():
         name TEXT NOT NULL,
         birthdate TEXT NOT NULL,
         emoji TEXT NOT NULL DEFAULT "🎂")''')
+    conn.execute('''CREATE TABLE IF NOT EXISTS schedule (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        day_num INTEGER NOT NULL,
+        lesson_num INTEGER NOT NULL,
+        subject TEXT NOT NULL,
+        teacher TEXT DEFAULT "",
+        time_start TEXT NOT NULL,
+        time_end TEXT NOT NULL)''')
+    if not conn.execute("SELECT 1 FROM schedule").fetchone():
+        default = [
+            (1,1,"Математика","","08:00","08:45"),(1,2,"Русский язык","","08:55","09:40"),
+            (1,3,"История","","09:55","10:40"),(1,4,"Биология","","10:50","11:35"),
+            (1,5,"Физкультура","","11:50","12:35"),(1,6,"Литература","","12:45","13:30"),
+            (2,1,"Английский язык","","08:00","08:45"),(2,2,"Математика","","08:55","09:40"),
+            (2,3,"Физика","","09:55","10:40"),(2,4,"Русский язык","","10:50","11:35"),
+            (2,5,"Информатика","","11:50","12:35"),
+            (3,1,"История","","08:00","08:45"),(3,2,"Биология","","08:55","09:40"),
+            (3,3,"Математика","","09:55","10:40"),(3,4,"Английский язык","","10:50","11:35"),
+            (3,5,"Физкультура","","11:50","12:35"),(3,6,"Литература","","12:45","13:30"),
+            (4,1,"Русский язык","","08:00","08:45"),(4,2,"Физика","","08:55","09:40"),
+            (4,3,"Английский язык","","09:55","10:40"),(4,4,"Математика","","10:50","11:35"),
+            (4,5,"Химия","","11:50","12:35"),
+            (5,1,"Литература","","08:00","08:45"),(5,2,"Математика","","08:55","09:40"),
+            (5,3,"Русский язык","","09:55","10:40"),(5,4,"История","","10:50","11:35"),
+            (5,5,"Биология","","11:50","12:35"),(5,6,"Информатика","","12:45","13:30"),
+        ]
+        conn.executemany("INSERT INTO schedule (day_num,lesson_num,subject,teacher,time_start,time_end) VALUES (?,?,?,?,?,?)", default)
     # Всегда проверяем наличие дефолтного админа
     if not conn.execute("SELECT 1 FROM users WHERE username='admin'").fetchone():
         conn.execute("INSERT INTO users (username,password,role,display_name) VALUES (?,?,?,?)",
@@ -127,6 +157,11 @@ def index():
     conn = get_db()
     posts = conn.execute('SELECT * FROM posts ORDER BY created DESC').fetchall()
     bdays_raw = conn.execute('SELECT * FROM birthdays').fetchall()
+    today_num = datetime.now().isoweekday()
+    schedule_today = conn.execute(
+        'SELECT * FROM schedule WHERE day_num=? ORDER BY lesson_num',
+        (today_num if today_num <= 5 else 1,)
+    ).fetchall() if today_num <= 5 else []
     conn.close()
     bdays = sorted([
         {'name':b['name'],'emoji':b['emoji'],**dict(zip(['days_left','is_today','date_str'], bday_info(b['birthdate'])))}
@@ -135,7 +170,10 @@ def index():
     return render_template('index.html',
         user=session['display_name'], role=session['role'],
         role_label=ROLE_LABELS.get(session['role'],''), can=can,
-        posts=posts, birthdays=bdays)
+        posts=posts, birthdays=bdays,
+        schedule_today=schedule_today,
+        today_day_name=DAYS_RU.get(today_num,'Выходной'),
+        today_num=today_num)
 
 # ── ОБЪЯВЛЕНИЯ ────────────────────────────────────────────────────────────────
 
@@ -301,6 +339,53 @@ def delete_user(uid):
         conn.commit()
     conn.close()
     return redirect(url_for('users'))
+
+
+# ── РАСПИСАНИЕ ────────────────────────────────────────────────────────────────
+
+@app.route('/schedule')
+def schedule():
+    if 'user' not in session: return redirect(url_for('login'))
+    conn = get_db()
+    rows = conn.execute('SELECT * FROM schedule ORDER BY day_num, lesson_num').fetchall()
+    conn.close()
+    # Группируем по дням
+    days = {}
+    for r in rows:
+        d = r['day_num']
+        if d not in days: days[d] = []
+        days[d].append(r)
+    today_num = datetime.now().isoweekday()  # 1=пн ... 7=вс
+    return render_template('schedule.html',
+        user=session['display_name'], role=session['role'], can=can,
+        days=days, days_ru=DAYS_RU, days_short=DAYS_SHORT, today_num=today_num)
+
+@app.route('/schedule/edit/<int:day>', methods=['GET','POST'])
+def schedule_edit(day):
+    if not can('schedule'): return redirect(url_for('schedule'))
+    conn = get_db()
+    if request.method == 'POST':
+        # Удаляем старые уроки этого дня
+        conn.execute('DELETE FROM schedule WHERE day_num=?', (day,))
+        # Вставляем новые
+        subjects  = request.form.getlist('subject')
+        teachers  = request.form.getlist('teacher')
+        t_starts  = request.form.getlist('time_start')
+        t_ends    = request.form.getlist('time_end')
+        for i, subj in enumerate(subjects):
+            if subj.strip():
+                conn.execute(
+                    'INSERT INTO schedule (day_num,lesson_num,subject,teacher,time_start,time_end) VALUES (?,?,?,?,?,?)',
+                    (day, i+1, subj.strip(), teachers[i].strip() if i < len(teachers) else '',
+                     t_starts[i] if i < len(t_starts) else '08:00',
+                     t_ends[i] if i < len(t_ends) else '08:45'))
+        conn.commit(); conn.close()
+        return redirect(url_for('schedule'))
+    lessons = conn.execute('SELECT * FROM schedule WHERE day_num=? ORDER BY lesson_num', (day,)).fetchall()
+    conn.close()
+    return render_template('schedule_edit.html',
+        user=session['display_name'], role=session['role'], can=can,
+        day=day, day_name=DAYS_RU.get(day,'?'), lessons=lessons)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
