@@ -85,9 +85,14 @@
     <nav class="side">
         <a href="/" class="nav on"><span class="ni">🏠</span> Главная</a>
         <a href="/students" class="nav"><span class="ni">👥</span> Ученики</a>
+        <a href="/schedule" class="nav"><span class="ni">📅</span> Расписание</a>
         <a href="/gallery" class="nav"><span class="ni">🖼️</span> Галерея</a>
         <a href="/knowledge" class="nav"><span class="ni">📚</span> ГДЗ и уроки</a>
         <a href="/birthdays" class="nav"><span class="ni">🎂</span> Дни рождения</a>
+        <div class="sep"></div>
+        <a href="https://school.karelia.ru/personal-area/" target="_blank" class="nav" style="color:#a5b4fc">
+            <span class="ni">📓</span> Эл. дневник
+        </a>
         {% if can('manage_users') %}
         <div class="sep"></div>
         <a href="/users" class="nav"><span class="ni">🔑</span> Пользователи</a>
@@ -102,19 +107,29 @@
         {% endif %}
     </nav>
     <main class="main">
-        <div class="sec">📅 Расписание на сегодня</div>
+        <div class="sec" style="justify-content:space-between">
+            <span>📅 {{ today_day_name or 'Расписание' }}</span>
+            <a href="/schedule" style="font-size:13px;color:var(--mut);font-weight:700;text-decoration:none">Всё расписание →</a>
+        </div>
+        {% if today_num <= 5 and schedule_today %}
         <table class="stbl" id="st">
             <thead><tr><th>№</th><th>Время</th><th>Предмет</th><th>Учитель</th></tr></thead>
             <tbody>
-                <tr data-s="08:00" data-e="08:45"><td>1</td><td><span class="tc">08:00–08:45</span></td><td>Математика <span class="nb">сейчас</span></td><td>—</td></tr>
-                <tr data-s="08:55" data-e="09:40"><td>2</td><td><span class="tc">08:55–09:40</span></td><td>Русский язык <span class="nb">сейчас</span></td><td>—</td></tr>
-                <tr data-s="09:55" data-e="10:40"><td>3</td><td><span class="tc">09:55–10:40</span></td><td>История <span class="nb">сейчас</span></td><td>—</td></tr>
-                <tr data-s="10:50" data-e="11:35"><td>4</td><td><span class="tc">10:50–11:35</span></td><td>Биология <span class="nb">сейчас</span></td><td>—</td></tr>
-                <tr data-s="11:50" data-e="12:35"><td>5</td><td><span class="tc">11:50–12:35</span></td><td>Физкультура <span class="nb">сейчас</span></td><td>—</td></tr>
-                <tr data-s="12:45" data-e="13:30"><td>6</td><td><span class="tc">12:45–13:30</span></td><td>Английский язык <span class="nb">сейчас</span></td><td>—</td></tr>
-                <tr data-s="13:40" data-e="14:25"><td>7</td><td><span class="tc">13:40–14:25</span></td><td>Информатика <span class="nb">сейчас</span></td><td>—</td></tr>
+            {% for l in schedule_today %}
+                <tr data-s="{{ l['time_start'] }}" data-e="{{ l['time_end'] }}">
+                    <td>{{ l['lesson_num'] }}</td>
+                    <td><span class="tc">{{ l['time_start'] }}–{{ l['time_end'] }}</span></td>
+                    <td>{{ l['subject'] }} <span class="nb">сейчас</span></td>
+                    <td>{{ l['teacher'] or '—' }}</td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
+        {% elif today_num > 5 %}
+        <div class="empty"><span>🎉</span>Сегодня выходной!</div>
+        {% else %}
+        <div class="empty"><span>📅</span>Расписание не заполнено — <a href="/schedule" style="color:var(--y)">добавить</a></div>
+        {% endif %}
         <div class="two">
             <div>
                 <div class="sec">📢 Объявления</div>
