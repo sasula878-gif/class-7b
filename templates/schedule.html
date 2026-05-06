@@ -167,7 +167,7 @@ setInterval(highlightNow, 30000);
 // При загрузке показываем нужный день
 window.addEventListener('load', () => {
     const todayNum = {{ today_num }};
-    const validDays = {{ list(days_ru.keys()) }};
+    const validDays = {{ days_ru.keys()|list }};
     if (validDays.includes(todayNum)) {
         document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('on'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
