@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>7Б — Редактор расписания</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--y:#FFD93D;--o:#FF6B35;--p:#FF4D6D;--b:#4CC9F0;--g:#06D6A0;--dark:#1a1a2e;--card:rgba(255,255,255,.06);--brd:rgba(255,255,255,.1);--txt:rgba(255,255,255,.9);--mut:rgba(255,255,255,.45)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--txt);min-height:100vh;padding:24px}
+        a{text-decoration:none;color:inherit}
+        .wrap{max-width:700px;margin:0 auto}
+        .back{display:inline-flex;align-items:center;gap:6px;color:var(--mut);font-weight:700;font-size:14px;margin-bottom:20px;transition:.2s}
+        .back:hover{color:var(--txt)}
+        .header{margin-bottom:28px}
+        .ht{font-size:28px;font-weight:900}
+        .hs{color:var(--mut);font-size:14px;margin-top:4px}
+
+        /* LESSON ROW */
+        .lessons{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+        .lesson-row{background:var(--card);border:1.5px solid var(--brd);border-radius:16px;padding:16px 18px;display:grid;grid-template-columns:36px 1fr 1fr auto auto;gap:12px;align-items:center;transition:.2s}
+        .lesson-row:hover{border-color:rgba(255,255,255,.18)}
+        .lesson-num{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:var(--y);flex-shrink:0}
+        .inp{background:rgba(255,255,255,.07);border:2px solid var(--brd);border-radius:10px;padding:9px 13px;color:var(--txt);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none;transition:.2s;width:100%}
+        .inp::placeholder{color:var(--mut)}
+        .inp:focus{border-color:var(--y);background:rgba(255,217,61,.06)}
+        .inp-time{width:90px;font-variant-numeric:tabular-nums}
+        .del-btn{width:34px;height:34px;border-radius:9px;background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.25);color:var(--p);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
+        .del-btn:hover{background:rgba(255,77,109,.25);transform:scale(1.05)}
+        .time-group{display:flex;align-items:center;gap:6px;flex-shrink:0}
+        .time-sep{color:var(--mut);font-size:13px;font-weight:700}
+
+        /* ADD BUTTON */
+        .add-btn{width:100%;background:rgba(255,255,255,.04);border:2px dashed var(--brd);border-radius:16px;padding:14px;color:var(--mut);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+        .add-btn:hover{border-color:var(--y);color:var(--y);background:rgba(255,217,61,.04)}
+
+        /* ACTIONS */
+        .actions{display:flex;gap:12px;margin-top:28px}
+        .save-btn{flex:1;background:linear-gradient(135deg,var(--y),var(--o));color:var(--dark);border:none;border-radius:14px;padding:15px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;transition:.2s}
+        .save-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(255,107,53,.4)}
+        .cancel-btn{display:flex;align-items:center;justify-content:center;padding:15px 22px;border-radius:14px;background:var(--card);border:1px solid var(--brd);color:var(--txt);font-weight:700;font-size:15px}
+        .cancel-btn:hover{background:rgba(255,255,255,.1)}
+
+        /* QUICK SUBJECTS */
+        .quick-label{font-size:12px;font-weight:900;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+        .quick-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+        .pill{padding:5px 12px;border-radius:20px;background:var(--card);border:1px solid var(--brd);color:var(--mut);font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+        .pill:hover{border-color:var(--y);color:var(--y)}
+
+        /* HINT */
+        .hint-box{background:rgba(76,201,240,.08);border:1px solid rgba(76,201,240,.2);border-radius:12px;padding:12px 16px;color:var(--b);font-size:13px;font-weight:700;margin-bottom:20px}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="/schedule" class="back">← Назад к расписанию</a>
+
+    <div class="header">
+        <div class="ht">✏️ {{ day_name }}</div>
+        <div class="hs">Редактируй уроки — изменения сохранятся для всего класса</div>
+    </div>
+
+    <div class="hint-box">💡 Нажми на предмет в быстром выборе чтобы добавить урок</div>
+
+    <div class="quick-label">Быстрый выбор предметов</div>
+    <div class="quick-pills">
+        {% for s in ['Математика','Алгебра','Геометрия','Русский язык','Литература','Английский язык','История','Обществознание','Биология','Химия','Физика','Физкультура','Информатика','Технология','Изобразительное искусство','Музыка','ОБЖ','География'] %}
+        <span class="pill" onclick="addLesson('{{ s }}')">{{ s }}</span>
+        {% endfor %}
+    </div>
+
+    <form method="POST" id="form">
+        <div class="lessons" id="lessons">
+            {% for l in lessons %}
+            <div class="lesson-row" id="row-{{ loop.index }}">
+                <div class="lesson-num">{{ loop.index }}</div>
+                <input class="inp" type="text" name="subject" value="{{ l['subject'] }}" placeholder="Предмет" required>
+                <input class="inp" type="text" name="teacher" value="{{ l['teacher'] or '' }}" placeholder="Учитель (необязательно)">
+                <div class="time-group">
+                    <input class="inp inp-time" type="time" name="time_start" value="{{ l['time_start'] }}" required>
+                    <span class="time-sep">—</span>
+                    <input class="inp inp-time" type="time" name="time_end" value="{{ l['time_end'] }}" required>
+                </div>
+                <button type="button" class="del-btn" onclick="removeRow(this)" title="Удалить">✕</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="add-btn" onclick="addLesson('')">+ Добавить урок</button>
+
+        <div class="actions">
+            <button type="submit" class="save-btn">💾 Сохранить расписание</button>
+            <a href="/schedule" class="cancel-btn">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+let rowCount = {{ lessons|length }};
+
+// Умный расчёт времени следующего урока
+const BREAKS = [10, 15, 10, 15, 10, 10]; // перемены после каждого урока (мин)
+const LESSON_LEN = 45;
+
+function getNextTime() {
+    const rows = document.querySelectorAll('#lessons .lesson-row');
+    if (rows.length === 0) return ['08:00', '08:45'];
+    const lastRow = rows[rows.length - 1];
+    const lastEnd = lastRow.querySelector('[name="time_end"]').value;
+    if (!lastEnd) return ['08:00', '08:45'];
+    const [h, m] = lastEnd.split(':').map(Number);
+    const breakMin = BREAKS[Math.min(rows.length - 1, BREAKS.length - 1)];
+    const startTotal = h * 60 + m + breakMin;
+    const endTotal = startTotal + LESSON_LEN;
+    const fmt = n => String(Math.floor(n/60)).padStart(2,'0') + ':' + String(n%60).padStart(2,'0');
+    return [fmt(startTotal), fmt(endTotal)];
+}
+
+function addLesson(subject) {
+    rowCount++;
+    const [ts, te] = getNextTime();
+    const row = document.createElement('div');
+    row.className = 'lesson-row';
+    row.id = 'row-' + rowCount;
+    row.innerHTML = `
+        <div class="lesson-num">${document.querySelectorAll('#lessons .lesson-row').length + 1}</div>
+        <input class="inp" type="text" name="subject" value="${subject}" placeholder="Предмет" required>
+        <input class="inp" type="text" name="teacher" value="" placeholder="Учитель (необязательно)">
+        <div class="time-group">
+            <input class="inp inp-time" type="time" name="time_start" value="${ts}" required>
+            <span class="time-sep">—</span>
+            <input class="inp inp-time" type="time" name="time_end" value="${te}" required>
+        </div>
+        <button type="button" class="del-btn" onclick="removeRow(this)" title="Удалить">✕</button>
+    `;
+    document.getElementById('lessons').appendChild(row);
+    renumber();
+    // Фокус на предмет если пустой
+    if (!subject) row.querySelector('[name="subject"]').focus();
+}
+
+function removeRow(btn) {
+    btn.closest('.lesson-row').remove();
+    renumber();
+}
+
+function renumber() {
+    document.querySelectorAll('#lessons .lesson-row .lesson-num').forEach((el, i) => {
+        el.textContent = i + 1;
+    });
+}
+</script>
+</body>
+</html>
